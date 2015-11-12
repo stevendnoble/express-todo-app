@@ -1,0 +1,26 @@
+{
+  "name": "todo-api",
+  "version": "1.0.0",
+  "description": "**Objective:** Use Express to make a RESTful API for a to do list. Build a client for your app that uses AJAX and Handlebars templating to `CREATE`, `READ`, `UPDATE`, and `DELETE` todos.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.14.1",
+    "express": "^4.13.3",
+    "hbs": "^4.0.0"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stevennoble78/express-todo-app.git"
+  },
+  "bugs": {
+    "url": "https://github.com/stevennoble78/express-todo-app/issues"
+  },
+  "homepage": "https://github.com/stevennoble78/express-todo-app#readme"
+}
