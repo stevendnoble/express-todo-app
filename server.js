@@ -16,19 +16,23 @@ app.use(bodyParser.urlencoded({ extended: true }));
 var todos = [{
 							_id: 1,
 							task: 'wake up',
-							description: 'get up at 7:00am'
+							description: 'get up at 7:00am',
+							done: false
 						},{
 							_id: 2,
 							task: 'make breakfast',
-							description: 'cook some eggs and toast'
+							description: 'cook some eggs and toast',
+							done: false
 						},{
 							_id: 3,
 							task: 'eat breakfast',
-							description: 'eat it'
+							description: 'eat it',
+							done: false
 						},{
 							_id: 4,
 							task: 'clean up',
-							description: 'wash dishes'
+							description: 'wash dishes',
+							done: false
 						}];
 
 // Set up route for index.html
