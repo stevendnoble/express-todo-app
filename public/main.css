@@ -1,3 +1,12 @@
+body {
+	background-color: #AE6D11;
+}
+
+#appcontainer {
+	background-color: #86D5B7;
+	border-color: #0B754D;
+}
+
 .editTodo {
 	display: none;
 }

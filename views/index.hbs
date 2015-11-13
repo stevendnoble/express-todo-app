@@ -13,14 +13,14 @@
   <body>
     <div class="container">
       <div class="row">
-        <div class="col-md-6 col-md-offset-3">
+        <div class="col-md-6 col-md-offset-3" id="appcontainer">
           <h1 class="text-center">To Do List</h1>
           <br>
           <form id="newTodo">
             <div class="form-group">
-              <input type="text" class="form-control form-group" name="task" placeholder="Task">
-              <input type="text" class="form-control form-group" name="description" placeholder="Description">
-              <input type="submit" class="btn btn-warning btn-block">
+              <input type="text" class="formdata form-control form-group" name="task" placeholder="Task">
+              <input type="text" class="formdata form-control form-group" name="description" placeholder="Description">
+              <input type="submit" class="btn btn-warning btn-block" value="Submit">
             </div>
           </form>
           <div id="todo-list">
@@ -33,28 +33,33 @@
               </div>
             </div>
             <script type="text/x-handlebars-template" id="template">
-              {{#each todos}}
+              \{{#each todos}}
                 <div class="row">
                   <div class="col-md-4">
-                    <h3>{{task}}</h3>
+                    <span id="task\{{_id}}"><h3>\{{task}}</h3></span>
                   </div>
                   <div class="col-md-8">
-                    <h4>{{description}}</h4>
+                    \{{#if description}}
+                      <h4>\{{description}}</h4>
+                    \{{else}}
+                      <h4>No description given</h4>
+                    \{{/if}}
                     <div class="btn-group">
-                      <span class="glyphicon glyphicon-pencil btn btn-warning" id="{{_id}}" aria-hidden="true"></span>
-                      <span class="glyphicon glyphicon-trash btn btn-warning" id="{{_id}}" aria-hidden="true"></span>
-                      <span class='glyphicon glyphicon-'
+                      <span class="glyphicon glyphicon-pencil btn btn-warning" id="\{{_id}}" aria-hidden="true"></span>
+                      <span class="glyphicon glyphicon-trash btn btn-warning" id="\{{_id}}" aria-hidden="true"></span>
+                      <span class="glyphicon glyphicon-ok btn btn-warning" id="\{{_id}}" aria-hidden="true"></span>
                     </div>
-                    <form class="editTodo" id="form{{_id}}">
+                    <form class="editTodo" id="form\{{_id}}">
                       <div class="form-group">
-                        <input type="text" class="form-control form-group" name="task" value="{{task}}">
-                        <input type="text" class="form-control form-group" name="description" value="{{description}}">
-                        <input type="submit" class="btn btn-warning btn-block">
+                        <input type="text" class="formdata form-control form-group" name="task" value="\{{task}}">
+                        <input type="text" class="formdata form-control form-group" name="description" value="\{{description}}">
+                        <input type="submit" class="btn btn-warning btn-block" value="Submit">
                       </div>
                     </form>
                   </div>
                 </div>
-              {{/each}}
+                <hr>
+              \{{/each}}
             </script>
           </div>
         </div>

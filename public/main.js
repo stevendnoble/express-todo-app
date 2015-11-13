@@ -7,25 +7,18 @@ $(document).ready (function () {
   // Compile the template
   var source   = $('#template').html();
 	var template = Handlebars.compile(source);
-	var todoResults = [];
-	var baseUrl = '/';
-	var apiUrl = baseUrl + 'api/todos/';
-	var $todolist = $('#todo-list');
-	var $newTodo = $('#newTodo');
 
-	// Handlebars list helper
-	Handlebars.registerHelper('list', function(context, options) {
-	  var ret = "<ul>";
-	  for(var i=0, j=context.length; i<j; i++) {
-	    ret = ret + "<li>" + options.fn(context[i]) + "</li>";
-	  }
-	  return ret + "</ul>";
-	});
+	// Set variables
+	var todoResults = [],
+			baseUrl = '/',
+			apiUrl = baseUrl + 'api/todos/',
+			$todolist = $('#todo-list'),
+			$newTodo = $('#newTodo');
 
   // Use AJAX to get data and append it to the page
   $.get(apiUrl, function(data) {
-  	console.log(data);
-  	todoResults = data;
+  	console.log(data.todos);
+  	todoResults = data.todos;
 
 	 	// Render the data
 	  var todoHTML = template({todos: todoResults});
@@ -36,7 +29,7 @@ $(document).ready (function () {
 	function refresh (data) {
 		console.log('refreshing');
 		$todolist.empty();
-		$('input').val('');
+		$('input.formdata').val('');
 		// Rerender the data
 	  var todoHTML = template({todos: todoResults});
 	  $todolist.append(todoHTML);
@@ -44,8 +37,12 @@ $(document).ready (function () {
 
 	// Add todo function called by submit button handler
 	function addTodo(data) {
-		todoResults.push(data);
-		refresh();
+		event.preventDefault();
+		var newTodo = $(this).serialize();
+		$.post(apiUrl, newTodo, function(data) {
+			todoResults.push(data);
+			refresh();
+		});
 	}
 
 	// Put todo function called by glyphicon pencil handler
@@ -61,20 +58,13 @@ $(document).ready (function () {
 				url: apiUrl + id,
 				data: updatedTodo,
 				success: function (data) {
-					// Get the object to update
-					var todoToUpdate = todos.filter(function(todo) {
-						return (todo._id === id);
-					})[0];
-					// Remove the object and replace it with the updated object
-					todoResults.splice(todoResults.indexOf(todoToUpdate), 1, data);
-					// var index;
-					// for (var i=0; i<todoResults.length; i++) {
-					// 	if (todoResults[id] === id) {
-					// 		index = i;
-					// 	}
-					// }
-						// todoResults.splice(index, 1);
-		 				// todoResults.push(data);
+					var index = todoResults.indexOf(updatedTodo);
+					for (var i=0; i<todoResults.length; i++) {
+						if (todoResults[i]._id === id) {
+							index = i;
+						}
+					}
+					todoResults.splice(index, 1, data);
 					refresh();
 				}
 			});
@@ -83,6 +73,7 @@ $(document).ready (function () {
 
 	// Delete todo function called by glyphicon trash handler
 	function deleteTodo() {
+		console.log('deleting');
 		event.preventDefault();
 		var id = $(this).attr('id');
 		$.ajax({
@@ -91,7 +82,7 @@ $(document).ready (function () {
 			success: function (data) {
 				var index;
 				for (var i=0; i<todoResults.length; i++) {
-					if (todoResults[id] === id) {
+					if (todoResults[i]._id === id) {
 						index = i;
 					}
 				}
@@ -102,17 +93,21 @@ $(document).ready (function () {
 		});
 	}
 
-	// Click handler for Submit button to add a todo
-  $newTodo.on('submit', function(event) {
-  	event.preventDefault();
-		var newTodo = $(this).serialize();
-		$.post(apiUrl, newTodo, addTodo);
-  });
+	// Strikeout text when glyphicon is clicked
+	function strikeout() {
+		event.preventDefault();
+		var id = $(this).attr('id');
+		$('#task' + id).css('text-decoration', 'line-through');
+	}
 
-  // Click handler for glyphicon pencil
+	// Click handler for Submit button to add a todo
+  $newTodo.on('submit', addTodo);
+
+  // Click handlers for glyphicons
   $todolist.on('click', '.glyphicon-pencil', putTodo);
 
-  // Click handler for glyphicon trash
   $todolist.on('click', '.glyphicon-trash', deleteTodo);
+
+  $todolist.on('click', '.glyphicon-ok', strikeout);
 
 });

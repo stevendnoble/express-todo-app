@@ -3,37 +3,21 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var hbs = require('hbs');
-
+var mongoose = require('mongoose');
 var app = express();
+
+// Require the Todo model
+var Todo = require('./models/todo');
 
 // Set up static public file
 app.use(express.static('public'));
 
-// Set up body-parser
-app.use(bodyParser.urlencoded({ extended: true }));
+// Set view engine to hbs
+app.set('view engine', 'hbs');
 
-// Seed data
-var todos = [{
-							_id: 1,
-							task: 'wake up',
-							description: 'get up at 7:00am',
-							done: false
-						},{
-							_id: 2,
-							task: 'make breakfast',
-							description: 'cook some eggs and toast',
-							done: false
-						},{
-							_id: 3,
-							task: 'eat breakfast',
-							description: 'eat it',
-							done: false
-						},{
-							_id: 4,
-							task: 'clean up',
-							description: 'wash dishes',
-							done: false
-						}];
+// Set up body-parser and connect to the local database
+app.use(bodyParser.urlencoded({ extended: true }));
+mongoose.connect('mongodb://localhost/todo-app');
 
 // Set up route for index.html
 app.get('/', function(req, res) {
@@ -42,65 +26,63 @@ app.get('/', function(req, res) {
 
 // Set up route for get
 app.get('/api/todos', function(req, res) {
-	res.json(todos);
+	// find will either return err or allTodos
+	Todo.find(function(err, allTodos) {
+		// Return an object which includes the allTodos array
+		res.json({ todos: allTodos });
+	});
 });
 
 // Set up route for getting a single todo
 app.get('/api/todos/:id', function(req, res) {
-	// Get the id
-	var todoId = parseInt(req.params.id);
-	// Find the object by the id
-	var todoToDisplay = todos.filter(function(todo) {
-		return (todo._id === todoId);
+	// Find url from id parameters
+	var todoId = req.params.id; // Doesn't need to be converted to an integer
+
+	// Find todo in db by id
+	Todo.findOne({ _id: todoId }, function(err, foundTodo) {
+		res.json(foundTodo);
 	});
-	// Respond with JSON data
-	res.json(todoToDisplay);
 });
 
 // Set up route to post todos
 app.post('/api/todos', function(req, res) {
-	// Create a new todo with form data
-	var newTodo = req.body;
-	// Set a sequential id for todo data
-	if (todos.length > 0) {
-		newTodo._id = todos[todos.length - 1]._id + 1;
-	} else {
-		newTodo._id = 1;
-	}
-	// Add new todo to the todos array
-	todos.push(newTodo);
-	// Send new todo as JSON resonse
-	res.json(newTodo);
+	// Create a new todo using form data
+	var newTodo = new Todo(req.body);
+
+	// Save new Todo in db
+	newTodo.save(function(err, savedTodo) {
+		res.json(savedTodo);
+	});
+
 });
 
 // Set up route for updates
 app.put('/api/todos/:id', function(req, res) {
-	// Get todo id from url params
-	var todoId = parseInt(req.params.id);
-	// Find todo to update by its id
-	var todoToUpdate = todos.filter(function(todo) {
-		return (todo._id === todoId);
-	})[0];
-	// Update the todo's task
-	req.body._id = todoId;
-	todos.splice(todos.indexOf(todoToUpdate), 1, req.body);
-		// We could update the task and the description as well
-	// Send back JSON data
-	res.json(req.body);
+	// Find url from id parameters
+	var todoId = req.params.id; // Doesn't need to be converted to an integer
+
+	// Find todo in db by id
+	Todo.findOne({ _id: todoId }, function(err, foundTodo) {
+		// Update the todo's attributes
+		foundTodo.task = req.body.task;
+		foundTodo.description = req.body.description;
+
+		// Save updated todo
+		foundTodo.save(function(err, savedTodo) {
+			res.json(foundTodo);
+		});
+	});
 });
 
 // Set up route for deletes
 app.delete('/api/todos/:id', function(req, res) {
-	// Get todo id from url params
-	var todoId = parseInt(req.params.id);
-	// Find todo to update by its id
-	var todoToDelete = todos.filter(function(todo) {
-		return (todo._id === todoId);
-	})[0];
-	// Delete the todo's task
-	todos.splice(todos.indexOf(todoToDelete), 1);
-	// Send back JSON data
-	res.json(todoToDelete);
+	// Find url from id parameters
+	var todoId = req.params.id; // Doesn't need to be converted to an integer
+
+	// Find todo in db by id
+	Todo.findOneAndRemove({ _id: todoId }, function(err, deletedTodo) {
+		res.json(deletedTodo);
+	});
 });
 
 var server = app.listen(process.env.PORT || 5000, function() {
